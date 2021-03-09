@@ -76,6 +76,7 @@ train(
     device=device,
     n_epoch=5,
     verbose=False,
+    tensorboard=True,
 )
 
 

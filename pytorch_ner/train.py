@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 from pytorch_ner.metrics import calculate_metrics
@@ -144,12 +145,15 @@ def train(
     optimizer: optim.Optimizer,
     device: torch.device,
     n_epoch: int,
+    tensorboard: bool,
     testloader: Optional[DataLoader] = None,
     verbose: bool = True,
 ):
     """
     Training / validation loop for n_epoch with final testing.
     """
+    # Writer will output to ./runs/ directory by default
+    writer = SummaryWriter()
 
     for epoch in range(n_epoch):
 
@@ -182,6 +186,10 @@ def train(
             for metric_name, metric_list in val_metrics.items():
                 print(f"val {metric_name}: {np.mean(metric_list)}")
             print()
+
+        if tensorboard:
+            writer.add_scalar("Loss/train", np.mean((train_metrics["loss"])), epoch)
+            writer.add_scalar("Loss/val", np.mean((val_metrics["loss"])), epoch)
 
     if testloader is not None:
 
